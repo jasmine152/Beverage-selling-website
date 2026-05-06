@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Login</title>
+
+<style>
+body{
+font-family:Arial;
+background:#f4f4f4;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+background-image:url(//img.freepik.com/free-photo/top-view-delicious-coffee-beans-arrangement_23-2150691447.jpg?semt=ais_hybrid&w=740&q=80);
+background-size: cover;
+background-repeat: no-repeat;
+}
+
+.box{
+background:white;
+padding:40px;
+border-radius:10px;
+width:300px;
+text-align:center;
+box-shadow:0 5px 15px rgba(0,0,0,0.2);
+}
+
+input{
+width:90%;
+padding:10px;
+margin:10px 0;
+border-radius:5px;
+border:1px solid #ccc;
+}
+
+button{
+padding:10px;
+width:100%;
+background:#ff9800;
+margin:10px 0;
+border:none;
+color:white;
+cursor:pointer;
+}
+.box{
+    background: linear-gradient(145deg, #3B2621, #9C6B4F, #9C6B4F);
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+<h2 style="color:white">Login</h2>
+
+<input type="text" id="user" placeholder="Username or Email">
+<input type="password" id="pass" placeholder="Password">
+
+<button onclick="login()">Login</button>
+</div>
+
+<script>
+function login(){
+  let u = document.getElementById("user").value.trim();
+  let p = document.getElementById("pass").value;
+
+  if(!u || !p){
+    alert("Please enter details");
+    return;
+  }
+
+  /* CHECK LOCALSTORAGE FOR REGISTERED USER */
+  let stored = localStorage.getItem("userData");
+
+  if(!stored){
+    alert("No account found. Please sign up first.");
+    return;
+  }
+
+  let user = JSON.parse(stored);
+
+  /* MATCH BY EMAIL OR NAME + PASSWORD */
+  if((u === user.email || u === user.name) && p === user.password){
+    localStorage.setItem("isLoggedIn", "true");
+    alert("Welcome back, " + user.name + "! 👋");
+    window.location.href = "index.html";
+  } else {
+    alert("Incorrect username or password. Please try again.");
+  }
+}
+</script>
+
+</body>
+</html>

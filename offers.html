@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Special Offers</title>
+
+<style>
+
+body {
+  font-family: Arial;
+  margin: 0;
+  background: #f4f4f4;
+}
+
+nav {
+  background: #222;
+  padding: 15px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+nav h1 { color: white; margin: 0; }
+
+nav ul {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 20px;
+}
+
+nav ul li a {
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+nav ul li a:hover { color: #ff9800; }
+
+/* HERO BANNER */
+.section-hero {
+  background: #1a1a1a;
+  color: white;
+  text-align: center;
+  padding: 56px 30px 44px;
+}
+
+.section-hero h2 {
+  font-size: 30px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  letter-spacing: 0.5px;
+}
+
+.section-hero p {
+  font-size: 14px;
+  color: #aaa;
+}
+
+/* OFFER GRID */
+.offers-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 26px;
+  padding: 40px 50px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* OFFER CARD */
+.offer-card {
+  background: white;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+}
+
+.offer-card:hover {
+  transform: translateY(-7px);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.13);
+  border-color: #ff9800;
+}
+
+/* CARD TOP IMAGE */
+.card-top {
+  position: relative;
+  height: 150px;
+  overflow: hidden;
+  background: #f0f0f0;
+}
+
+.card-top img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.offer-card:hover .card-top img {
+  transform: scale(1.05);
+}
+
+/* BADGE */
+.card-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: #ff9800;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  padding: 3px 11px;
+  border-radius: 20px;
+}
+
+/* CARD BODY */
+.card-body {
+  padding: 18px 18px 10px;
+}
+
+.card-body h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 5px;
+}
+
+.card-body .deal {
+  font-size: 13px;
+  color: #ff9800;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.card-body p {
+  font-size: 12px;
+  color: #888;
+  line-height: 1.55;
+}
+
+/* CARD FOOTER */
+.card-footer {
+  padding: 10px 18px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.validity {
+  font-size: 10px;
+  color: #b36000;
+  font-style: italic;
+  font-weight: 600;
+}
+
+.tap-hint {
+  font-size: 11px;
+  color: #ff9800;
+  font-weight: 700;
+}
+
+/* ---- MODAL OVERLAY ---- */
+.modal-wrap {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 9000;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-wrap.open { display: flex; }
+
+/* MODAL BOX */
+.modal {
+  background: white;
+  border-radius: 18px;
+  width: 420px;
+  max-width: 94vw;
+  overflow: hidden;
+  position: relative;
+  animation: modalIn 0.3s ease;
+}
+
+@keyframes modalIn {
+  from { transform: translateY(28px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.modal-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+}
+
+/* CLOSE X */
+.modal-x {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: rgba(0, 0, 0, 0.45);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.modal-x:hover { background: rgba(0, 0, 0, 0.7); }
+
+/* MODAL BODY */
+.modal-body { padding: 24px; }
+
+.modal-badge {
+  display: inline-block;
+  background: #fff3e0;
+  color: #b36000;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 4px 13px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.modal-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 5px;
+}
+
+.modal-deal {
+  font-size: 18px;
+  color: #ff9800;
+  font-weight: 800;
+  margin-bottom: 14px;
+}
+
+.modal-desc {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.75;
+  margin-bottom: 14px;
+}
+
+.modal-terms {
+  font-size: 11px;
+  color: #bbb;
+  font-style: italic;
+  margin-bottom: 14px;
+  padding: 10px 14px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  border-left: 3px solid #ffd08a;
+}
+
+/* Payment notice banner */
+.modal-payment {
+  background: #fff8ee;
+  border-left: 3px solid #ff9800;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: #b36000;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.modal-cta {
+  width: 100%;
+  padding: 14px;
+  background: #ff9800;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.modal-cta:hover { background: #e68900; }
+
+</style>
+</head>
+
+<body>
+
+<nav>
+  <h1>DrinkLuxe</h1>
+  <ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="menu.html">Menu</a></li>
+    <li><a href="offers.html">Offers</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="cart.html">Cart</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="section-hero">
+  <h2>Special Offers</h2>
+  <p>Click on any deal to see full details and how to claim it</p>
+</div>
+
+<!-- OFFER CARDS -->
+<div class="offers-container">
+
+  <div class="offer-card" data-i="0">
+    <div class="card-top">
+      <img src="https://thumbs.dreamstime.com/b/beverage-summer-vibes-two-chilled-beer-bottles-citrus-fruits-vibrant-tropical-elements-eye-catching-display-nestled-402319155.jpg" alt="Summer Combo">
+      <span class="card-badge">Limited</span>
+    </div>
+    <div class="card-body">
+      <h3>Summer Combo</h3>
+      <div class="deal">Lemonade + Smoothie = $5</div>
+      <p>Two refreshing drinks, one great price</p>
+    </div>
+    <div class="card-footer">
+      <span class="validity">💳 Card / Online Payment only</span>
+      <span class="tap-hint">View &rarr;</span>
+    </div>
+  </div>
+
+  <div class="offer-card" data-i="1">
+    <div class="card-top">
+      <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Student Discount">
+      <span class="card-badge">Ongoing</span>
+    </div>
+    <div class="card-body">
+      <h3>Student Discount</h3>
+      <div class="deal">20% off on all drinks</div>
+      <p>Show your student ID at checkout</p>
+    </div>
+    <div class="card-footer">
+      <span class="validity">💳 Card / Online Payment only</span>
+      <span class="tap-hint">View &rarr;</span>
+    </div>
+  </div>
+
+  <div class="offer-card" data-i="2">
+    <div class="card-top">
+      <img src="https://thumbs.dreamstime.com/b/happy-hour-cocktails-drink-glasses-different-style-straws-coktail-umbrellas-lemon-slices-58753153.jpg" alt="Happy Hour">
+      <span class="card-badge">Daily 4–6 PM</span>
+    </div>
+    <div class="card-body">
+      <h3>Happy Hour</h3>
+      <div class="deal">Buy 1 Get 1 Free</div>
+      <p>Every day from 4 PM to 6 PM</p>
+    </div>
+    <div class="card-footer">
+      <span class="validity">💳 Card / Online Payment only</span>
+      <span class="tap-hint">View &rarr;</span>
+    </div>
+  </div>
+
+  <div class="offer-card" data-i="3">
+    <div class="card-top">
+      <img src="https://cdn-icons-png.flaticon.com/512/685/685655.png" alt="Weekend Special">
+      <span class="card-badge">Sat &amp; Sun</span>
+    </div>
+    <div class="card-body">
+      <h3>Weekend Special</h3>
+      <div class="deal">30% off all smoothies</div>
+      <p>Every Saturday and Sunday</p>
+    </div>
+    <div class="card-footer">
+      <span class="validity">💳 Card / Online Payment only</span>
+      <span class="tap-hint">View &rarr;</span>
+    </div>
+  </div>
+
+  <div class="offer-card" data-i="4">
+    <div class="card-top">
+      <img src="https://cdn-icons-png.flaticon.com/512/869/869636.png" alt="Family Pack">
+      <span class="card-badge">Best Value</span>
+    </div>
+    <div class="card-body">
+      <h3>Family Pack</h3>
+      <div class="deal">4 Drinks for $10</div>
+      <p>Mix and match any 4 drinks</p>
+    </div>
+    <div class="card-footer">
+      <span class="validity">💳 Card / Online Payment only</span>
+      <span class="tap-hint">View &rarr;</span>
+    </div>
+  </div>
+
+  <div class="offer-card" data-i="5">
+    <div class="card-top">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdVSqcWEnauXxkS_TIS_-0PjNqwWWJX-j9HQ&s" alt="Festival Offer">
+      <span class="card-badge">Seasonal</span>
+    </div>
+    <div class="card-body">
+      <h3>Festival Offer</h3>
+      <div class="deal">Free drink with every combo</div>
+      <p>During festive seasons only</p>
+    </div>
+    <div class="card-footer">
+      <span class="validity">💳 Card / Online Payment only</span>
+      <span class="tap-hint">View &rarr;</span>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- MODAL -->
+<div class="modal-wrap" id="modalWrap">
+  <div class="modal">
+    <img class="modal-img" id="mImg" src="" alt="">
+    <button class="modal-x" id="modalX">&#10005;</button>
+    <div class="modal-body">
+      <div class="modal-badge" id="mBadge"></div>
+      <div class="modal-title" id="mTitle"></div>
+      <div class="modal-deal" id="mDeal"></div>
+      <div class="modal-desc" id="mDesc"></div>
+      <div class="modal-terms" id="mTerms"></div>
+      <div class="modal-payment">💳 This offer is valid only on Card or Online Payment &nbsp;·&nbsp; UPI &nbsp;·&nbsp; Paytm &nbsp;·&nbsp; Net Banking &nbsp;·&nbsp; Wallets</div>
+      <button class="modal-cta" id="modalClose">Got it</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+
+const offers = [
+  {
+    badge: "Limited",
+    title: "Summer Combo",
+    deal: "Lemonade + Smoothie = $5",
+    desc: "Beat the heat with our unbeatable Summer Combo! Get one freshly made Mint Lemonade and one Mango Smoothie together for just $5 — a saving of $1 off the regular price. Perfect for sharing or treating yourself to both.",
+    terms: "Valid until 31 Aug 2025. Dine-in only. Cannot be combined with other offers.",
+    img: "https://thumbs.dreamstime.com/b/beverage-summer-vibes-two-chilled-beer-bottles-citrus-fruits-vibrant-tropical-elements-eye-catching-display-nestled-402319155.jpg"
+  },
+  {
+    badge: "Ongoing",
+    title: "Student Discount",
+    deal: "20% off on all drinks",
+    desc: "Studying is thirsty work! Present any valid student ID at the counter and enjoy 20% off your entire order, every single day. Applicable on all drinks across our menu — hot, cold, blended, or brewed.",
+    terms: "Valid student ID required. One discount per transaction. Not valid on delivery orders.",
+    img: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+  },
+  {
+    badge: "Daily 4–6 PM",
+    title: "Happy Hour",
+    deal: "Buy 1 Get 1 Free (4–6 PM)",
+    desc: "Our most popular deal! Every day between 4 PM and 6 PM, order any drink and get a second one of equal or lesser value absolutely free. The perfect reason to bring a friend and unwind after a long day.",
+    terms: "Valid 4–6 PM daily. Second drink must be of equal or lower value. Dine-in only.",
+    img: "https://thumbs.dreamstime.com/b/happy-hour-cocktails-drink-glasses-different-style-straws-coktail-umbrellas-lemon-slices-58753153.jpg"
+  },
+  {
+    badge: "Sat & Sun",
+    title: "Weekend Special",
+    deal: "30% off all smoothies",
+    desc: "Weekends just got tastier. Every Saturday and Sunday, all smoothies on our menu are available at 30% off the regular price. From Mango Smoothie to Banana Shake — it's your weekend wellness treat.",
+    terms: "Valid Saturdays and Sundays only. Applies to smoothies only. No further discounts applicable.",
+    img: "https://cdn-icons-png.flaticon.com/512/685/685655.png"
+  },
+  {
+    badge: "Best Value",
+    title: "Family Pack",
+    deal: "4 Drinks for $10",
+    desc: "Great value for groups and families! Pick any 4 drinks from our menu and pay just $10. Mix and match freely — whether it's coffees, shakes, or mocktails, we've got something for everyone at the table.",
+    terms: "Any 4 drinks up to $3.50 value each. Additional charges apply for premium drinks. Dine-in only.",
+    img: "https://cdn-icons-png.flaticon.com/512/869/869636.png"
+  },
+  {
+    badge: "Seasonal",
+    title: "Festival Offer",
+    deal: "Free drink with every combo",
+    desc: "Celebrate the season with us! During festival periods, every combo order comes with a complimentary drink of your choice (up to $3 value). Check in-store for the current festive period and eligible combos.",
+    terms: "Available during notified festive periods only. Free drink up to $3 value. Subject to availability.",
+    img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdVSqcWEnauXxkS_TIS_-0PjNqwWWJX-j9HQ&s"
+  }
+];
+
+const modalWrap = document.getElementById("modalWrap");
+
+function openModal(i) {
+  const o = offers[i];
+  document.getElementById("mImg").src      = o.img;
+  document.getElementById("mBadge").textContent = o.badge;
+  document.getElementById("mTitle").textContent = o.title;
+  document.getElementById("mDeal").textContent  = o.deal;
+  document.getElementById("mDesc").textContent  = o.desc;
+  document.getElementById("mTerms").textContent = "Terms: " + o.terms;
+  modalWrap.classList.add("open");
+}
+
+function closeModal() {
+  modalWrap.classList.remove("open");
+}
+
+// Card click
+document.querySelectorAll(".offer-card").forEach(function(card) {
+  card.addEventListener("click", function() {
+    openModal(parseInt(this.dataset.i));
+  });
+});
+
+document.getElementById("modalClose").addEventListener("click", closeModal);
+document.getElementById("modalX").addEventListener("click", closeModal);
+modalWrap.addEventListener("click", function(e) {
+  if (e.target === modalWrap) closeModal();
+});
+
+</script>
+
+</body>
+</html>

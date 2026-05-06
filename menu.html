@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Drinks Menu</title>
+<style>
+
+body {
+  font-family: Arial;
+  margin: 0;
+  background: #f4f4f4;
+}
+
+/* NAVBAR */
+nav {
+  background: #222;
+  padding: 15px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+nav h1 { color: white; }
+nav ul { list-style: none; display: flex; }
+nav ul li { margin-left: 20px; }
+nav ul li a { color: white; text-decoration: none; }
+nav ul li a:hover { color: #ff9800; }
+
+/* PAGE */
+.container {
+  padding: 50px;
+  text-align: center;
+}
+
+/* MENU GRID */
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  margin-top: 30px;
+}
+
+/* CARD */
+.card {
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: 0.3s;
+}
+.card:hover { transform: scale(1.05); }
+
+/* IMAGE WRAPPER — hover hint */
+.img-wrap {
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+}
+.img-wrap::after {
+  content: "Tap for details";
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.55);
+  color: white;
+  font-size: 11px;
+  padding: 4px 12px;
+  border-radius: 14px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.25s;
+  pointer-events: none;
+}
+.img-wrap:hover::after { opacity: 1; }
+.img-wrap img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s;
+}
+.img-wrap:hover img { transform: scale(1.04); }
+
+.card-body { padding: 20px; }
+
+/* BUTTON */
+.order-btn {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 10px 20px;
+  background: #ff9800;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  transition: 0.3s;
+}
+.order-btn:hover { background: #e68900; }
+
+/* OVERLAY */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1999;
+  display: none;
+  backdrop-filter: blur(2px);
+}
+.overlay.active { display: block; }
+
+/* SIDE PANEL */
+.side-panel {
+  position: fixed;
+  top: 0;
+  right: -430px;
+  width: 380px;
+  height: 100%;
+  background: white;
+  box-shadow: -6px 0 30px rgba(0, 0, 0, 0.18);
+  transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 2000;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.side-panel.active { right: 0; }
+
+/* PANEL — Image header */
+.panel-header { position: relative; flex-shrink: 0; }
+.panel-img {
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  display: block;
+}
+.panel-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: #ff9800;
+  color: white;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  padding: 4px 14px;
+  border-radius: 20px;
+}
+.close-btn {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: rgba(0, 0, 0, 0.45);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+.close-btn:hover { background: rgba(0, 0, 0, 0.7); }
+
+/* PANEL — Body */
+.panel-body {
+  padding: 22px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.panel-name {
+  font-size: 22px;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 4px;
+}
+.panel-tagline {
+  font-size: 13px;
+  color: #aaa;
+  margin-bottom: 10px;
+}
+.panel-price {
+  font-size: 28px;
+  font-weight: 800;
+  color: #ff9800;
+  margin-bottom: 20px;
+}
+
+/* SECTION LABELS */
+.section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.3px;
+  text-transform: uppercase;
+  color: #bbb;
+  margin-bottom: 8px;
+}
+
+/* DESCRIPTION */
+.panel-desc {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.75;
+  margin-bottom: 20px;
+}
+
+/* INGREDIENT CHIPS */
+.ing-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 26px;
+}
+.ing-chip {
+  background: #fff5e6;
+  color: #b36a00;
+  border: 1px solid #ffd49a;
+  border-radius: 20px;
+  padding: 5px 13px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* ADD TO CART BUTTON (panel) */
+.panel-add-btn {
+  width: 100%;
+  padding: 14px;
+  background: #ff9800;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: auto;
+}
+.panel-add-btn:hover { background: #e68900; }
+
+/* POPUP */
+#popup {
+  position: fixed;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #4CAF50;
+  color: white;
+  padding: 15px 30px;
+  border-radius: 5px;
+  font-weight: bold;
+  transition: 0.5s;
+  z-index: 3000;
+}
+
+</style>
+</head>
+<body>
+
+<nav>
+  <h1>DrinkLuxe</h1>
+  <ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="menu.html">Menu</a></li>
+    <li><a href="offers.html">Offers</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="cart.html">Cart</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+</nav>
+
+<div class="container">
+  <h1 style="color:black">Our Drinks Menu</h1>
+  <p style="color:#999; font-size:14px; margin-top:6px;">Click on any drink image to explore ingredients &amp; details</p>
+
+  <div class="menu-grid">
+
+    <!-- Drink 1 -->
+    <div class="card">
+      <div class="img-wrap" data-name="Cappuccino" data-price="3" data-tagline="Rich creamy coffee"
+        data-ing="Espresso, Steamed milk, Milk foam"
+        data-desc="A well-balanced coffee featuring a bold espresso base layered with silky steamed milk and topped with a thick foam."
+        data-img="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvthhy8frIY2WeY4dgkTfGd9zzChCeVpv5zw&s">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvthhy8frIY2WeY4dgkTfGd9zzChCeVpv5zw&s" alt="Cappuccino">
+      </div>
+      <div class="card-body">
+        <h3>Cappuccino</h3>
+        <p>$3</p>
+        <p>Rich creamy coffee</p>
+        <a href="#" class="order-btn" data-name="Cappuccino" data-price="3" data-img="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvthhy8frIY2WeY4dgkTfGd9zzChCeVpv5zw&s">Add to Cart</a>
+      </div>
+    </div>
+
+    <!-- Drink 2 -->
+    <div class="card">
+      <div class="img-wrap" data-name="Mango Smoothie" data-price="4" data-tagline="Fresh mango drink"
+        data-ing="Fresh mango, Milk, Yogurt, Honey"
+        data-desc="A tropical refreshing smoothie made with ripe mangoes blended into a creamy and sweet drink."
+        data-img="https://www.worldofvegan.com/wp-content/uploads/2020/05/mango-banana-smoothie.jpg">
+        <img src="https://www.worldofvegan.com/wp-content/uploads/2020/05/mango-banana-smoothie.jpg" alt="Mango Smoothie">
+      </div>
+      <div class="card-body">
+        <h3>Mango Smoothie</h3>
+        <p>$4</p>
+        <p>Fresh mango drink</p>
+        <a href="#" class="order-btn" data-name="Mango Smoothie" data-price="4" data-img="https://www.worldofvegan.com/wp-content/uploads/2020/05/mango-banana-smoothie.jpg">Add to Cart</a>
+      </div>
+    </div>
+
+    <!-- Drink 3 -->
+    <div class="card">
+      <div class="img-wrap" data-name="Mint Lemonade" data-price="2" data-tagline="Refreshing drink"
+        data-ing="Lemon, Fresh mint, Sugar, Water, Ice"
+        data-desc="A zesty cold lemonade blended with fresh mint leaves for a cool and revitalizing sip."
+        data-img="https://www.sharmispassions.com/wp-content/uploads/2025/04/lemon-mint-juice11.jpg">
+        <img src="https://www.sharmispassions.com/wp-content/uploads/2025/04/lemon-mint-juice11.jpg" alt="Mint Lemonade">
+      </div>
+      <div class="card-body">
+        <h3>Mint Lemonade</h3>
+        <p>$2</p>
+        <p>Refreshing drink</p>
+        <a href="#" class="order-btn" data-name="Mint Lemonade" data-price="2" data-img="https://www.sharmispassions.com/wp-content/uploads/2025/04/lemon-mint-juice11.jpg">Add to Cart</a>
+      </div>
+    </div>
+
+    <!-- Drink 4 -->
+    <div class="card">
+      <div class="img-wrap" data-name="Chocolate Milkshake" data-price="4" data-tagline="Creamy chocolate drink"
+        data-ing="Milk, Chocolate syrup, Ice cream, Whipped cream"
+        data-desc="An indulgent thick milkshake blended with rich chocolate and topped generously with cream."
+        data-img="https://noblepig.com/site/wp-content/uploads/2025/07/ultimate-chocolate-freakshake.jpg">
+        <img src="https://noblepig.com/site/wp-content/uploads/2025/07/ultimate-chocolate-freakshake.jpg" alt="Chocolate Milkshake">
+      </div>
+      <div class="card-body">
+        <h3>Chocolate Milkshake</h3>
+        <p>$4</p>
+        <p>Creamy chocolate drink</p>
+        <a href="#" class="order-btn" data-name="Chocolate Milkshake" data-price="4" data-img="https://noblepig.com/site/wp-content/uploads/2025/07/ultimate-chocolate-freakshake.jpg">Add to Cart</a>
+      </div>
+    </div>
+
+    <!-- Drink 5 -->
+    <div class="card">
+      <div class="img-wrap" data-name="Latte" data-price="3.5" data-tagline="Milk coffee"
+        data-ing="Espresso, Steamed milk, Milk foam"
+        data-desc="Smooth espresso with a generous pour of steamed milk — light, mellow and satisfying."
+        data-img="https://www.drinksupercoffee.com/cdn/shop/articles/fae84ed5-a18c-4da8-95d8-d38d576fa3b1_latte_2a0c8c48-b26b-48a0-8079-f999ed9fa3fd.jpg?v=1746120400&width=2048">
+        <img src="https://www.drinksupercoffee.com/cdn/shop/articles/fae84ed5-a18c-4da8-95d8-d38d576fa3b1_latte_2a0c8c48-b26b-48a0-8079-f999ed9fa3fd.jpg?v=1746120400&width=2048" alt="Latte">
+      </div>
+      <div class="card-body">
+        <h3>Latte</h3>
+        <p>$3.5</p>
+        <p>Milk coffee</p>
+        <a href="#" class="order-btn" data-name="Latte" data-price="3.5" data-img="https://www.drinksupercoffee.com/cdn/shop/articles/fae84ed5-a18c-4da8-95d8-d38d576fa3b1_latte_2a0c8c48-b26b-48a0-8079-f999ed9fa3fd.jpg?v=1746120400&width=2048">Add to Cart</a>
+      </div>
+    </div>
+
+    <!-- Drink 6 -->
+    <div class="card">
+      <div class="img-wrap" data-name="Iced Tea" data-price="2.5" data-tagline="Cold refreshing tea"
+        data-ing="Black tea, Lemon, Sugar, Ice"
+        data-desc="Chilled brewed tea with a hint of sweetness and citrus, perfect for warm days."
+        data-img="https://www.kitchengeekery.com/_next/image?url=https%3A%2F%2Fsite.kitchengeekery.com%2Fwp-content%2Fuploads%2F2021%2F01%2Flong-island-iced-tea.jpg&w=828&q=75">
+        <img src="https://www.kitchengeekery.com/_next/image?url=https%3A%2F%2Fsite.kitchengeekery.com%2Fwp-content%2Fuploads%2F2021%2F01%2Flong-island-iced-tea.jpg&w=828&q=75" alt="Iced Tea">
+      </div>
+      <div class="card-body">
+        <h3>Iced Tea</h3>
+        <p>$2.5</p>
+        <p>Cold refreshing tea</p>
+        <a href="#" class="order-btn" data-name="Iced Tea" data-price="2.5" data-img="https://www.kitchengeekery.com/_next/image?url=https%3A%2F%2Fsite.kitchengeekery.com%2Fwp-content%2Fuploads%2F2021%2F01%2Flong-island-iced-tea.jpg&w=828&q=75">Add to Cart</a>
+      </div>
+    </div>
+
+    <!-- Drink 7 -->
+    <div class="card">
+      <div class="img-wrap" data-name="Blue Lagoon" data-price="5" data-tagline="Sweet citrus blue drink"
+        data-ing="Blue curacao syrup, Lemon juice, Sprite, Ice"
+        data-desc="A stunning blue mocktail bursting with citrus flavors and a sweet refreshing finish."
+        data-img="https://saltandbaker.com/wp-content/uploads/2021/08/Blue-Lagoon-Mocktail-featured.jpg">
+        <img src="https://saltandbaker.com/wp-content/uploads/2021/08/Blue-Lagoon-Mocktail-featured.jpg" alt="Blue Lagoon">
+      </div>
+      <div class="card-body">
+        <h3>Blue Lagoon</h3>
+        <p>$5</p>
+        <p>Sweet citrus blue drink</p>
+        <a href="#" class="order-btn" data-name="Blue Lagoon" data-price="5" data-img="https://saltandbaker.com/wp-content/uploads/2021/08/Blue-Lagoon-Mocktail-featured.jpg">Add to Cart</a>
+      </div>
+    </div>
+
+    <!-- Drink 8 -->
+    <div class="card">
+      <div class="img-wrap" data-name="Fruit Punch" data-price="3.8" data-tagline="Mixed fruit refreshing drink"
+        data-ing="Orange juice, Pineapple, Grenadine, Soda, Ice"
+        data-desc="A vibrant blend of mixed fruit juices served chilled — colorful, sweet and tangy."
+        data-img="https://www.crazyforcrust.com/wp-content/uploads/2018/01/Vodka-Party-Punch-4-of-7.jpg">
+        <img src="https://www.crazyforcrust.com/wp-content/uploads/2018/01/Vodka-Party-Punch-4-of-7.jpg" alt="Fruit Punch">
+      </div>
+      <div class="card-body">
+        <h3>Fruit Punch</h3>
+        <p>$3.8</p>
+        <p>Mixed fruit refreshing drink</p>
+        <a href="#" class="order-btn" data-name="Fruit Punch" data-price="3.8" data-img="https://www.crazyforcrust.com/wp-content/uploads/2018/01/Vodka-Party-Punch-4-of-7.jpg">Add to Cart</a>
+      </div>
+    </div>
+
+    <!-- Drink 9 -->
+    <div class="card">
+      <div class="img-wrap" data-name="Mojito" data-price="2.8" data-tagline="Refreshing lime mint drink"
+        data-ing="Lime, Fresh mint, Sugar, Soda water, Ice"
+        data-desc="Classic mojito with fresh lime, mint, a touch of sugar and sparkling soda water."
+        data-img="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQ2A7qow7FdQkM3jcINiNG9vNvIuJyY01Ovg&s">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQ2A7qow7FdQkM3jcINiNG9vNvIuJyY01Ovg&s" alt="Mojito">
+      </div>
+      <div class="card-body">
+        <h3>Mojito</h3>
+        <p>$2.8</p>
+        <p>Refreshing lime mint drink</p>
+        <a href="#" class="order-btn" data-name="Mojito" data-price="2.8" data-img="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQ2A7qow7FdQkM3jcINiNG9vNvIuJyY01Ovg&s">Add to Cart</a>
+      </div>
+    </div>
+
+    <!-- Drink 10 -->
+    <div class="card">
+      <div class="img-wrap" data-name="Banana Shake" data-price="3.2" data-tagline="Thick healthy banana drink"
+        data-ing="Banana, Milk, Sugar, Ice cream"
+        data-desc="Creamy and thick banana shake made with ripe bananas and chilled milk — simple, sweet and filling."
+        data-img="https://fitfoodiefinds.com/wp-content/uploads/2025/06/banana-protein-shake-9-1200x1800.jpg">
+        <img src="https://fitfoodiefinds.com/wp-content/uploads/2025/06/banana-protein-shake-9-1200x1800.jpg" alt="Banana Shake">
+      </div>
+      <div class="card-body">
+        <h3>Banana Shake</h3>
+        <p>$3.2</p>
+        <p>Thick healthy banana drink</p>
+        <a href="#" class="order-btn" data-name="Banana Shake" data-price="3.2" data-img="https://fitfoodiefinds.com/wp-content/uploads/2025/06/banana-protein-shake-9-1200x1800.jpg">Add to Cart</a>
+      </div>
+    </div>
+
+    <!-- Drink 11 -->
+    <div class="card">
+      <div class="img-wrap" data-name="Cold Brew" data-price="4.5" data-tagline="Slow brewed chilled coffee"
+        data-ing="Coarse ground coffee, Cold water, Ice"
+        data-desc="Smooth, low-acidity coffee brewed cold overnight for a rich and refreshing coffee experience."
+        data-img="https://cdn.loveandlemons.com/wp-content/uploads/2025/05/iced-coffee-recipe.jpg">
+        <img src="https://cdn.loveandlemons.com/wp-content/uploads/2025/05/iced-coffee-recipe.jpg" alt="Cold Brew">
+      </div>
+      <div class="card-body">
+        <h3>Cold Brew</h3>
+        <p>$4.5</p>
+        <p>Slow brewed chilled coffee</p>
+        <a href="#" class="order-btn" data-name="Cold Brew" data-price="4.5" data-img="https://cdn.loveandlemons.com/wp-content/uploads/2025/05/iced-coffee-recipe.jpg">Add to Cart</a>
+      </div>
+    </div>
+
+    <!-- Drink 12 -->
+    <div class="card">
+      <div class="img-wrap" data-name="Vietnamese Iced Coffee" data-price="6" data-tagline="Strong sweet condensed coffee"
+        data-ing="Dark roast coffee, Condensed milk, Ice"
+        data-desc="Boldly brewed dark roast coffee sweetened with condensed milk and poured over ice — rich and indulgent."
+        data-img="https://cdn.shopify.com/s/files/1/0589/1640/5315/files/20250926065409-vietnamese-20blackberry-20coffee-min.png?v=1758869651&width=1600&height=900">
+        <img src="https://cdn.shopify.com/s/files/1/0589/1640/5315/files/20250926065409-vietnamese-20blackberry-20coffee-min.png?v=1758869651&width=1600&height=900" alt="Vietnamese Iced Coffee">
+      </div>
+      <div class="card-body">
+        <h3>Vietnamese Iced Coffee</h3>
+        <p>$6</p>
+        <p>Strong sweet condensed coffee</p>
+        <a href="#" class="order-btn" data-name="Vietnamese Iced Coffee" data-price="6" data-img="https://cdn.shopify.com/s/files/1/0589/1640/5315/files/20250926065409-vietnamese-20blackberry-20coffee-min.png?v=1758869651&width=1600&height=900">Add to Cart</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- OVERLAY -->
+<div class="overlay" id="overlay"></div>
+
+<!-- SIDE PANEL -->
+<div class="side-panel" id="sidePanel">
+  <div class="panel-header">
+    <img class="panel-img" id="panelImg" src="" alt="">
+    <span class="panel-badge">&#9733; Featured</span>
+    <button class="close-btn" id="closeBtn">&#10005;</button>
+  </div>
+  <div class="panel-body">
+    <div class="panel-name" id="panelName"></div>
+    <div class="panel-tagline" id="panelTagline"></div>
+    <div class="panel-price" id="panelPrice"></div>
+
+    <div class="section-label">Description</div>
+    <div class="panel-desc" id="panelDesc"></div>
+
+    <div class="section-label">Ingredients</div>
+    <div class="ing-chips" id="panelIng"></div>
+
+    <button class="panel-add-btn" id="panelAddBtn">&#43; Add to Cart</button>
+  </div>
+</div>
+
+<!-- POPUP -->
+<div id="popup">Item added to cart!</div>
+
+<script>
+
+const panel      = document.getElementById("sidePanel");
+const overlay    = document.getElementById("overlay");
+const closeBtn   = document.getElementById("closeBtn");
+const popup      = document.getElementById("popup");
+const panelAddBtn = document.getElementById("panelAddBtn");
+
+//stored temp obj as clicked
+let currentItem = {};
+
+// ---- OPEN PANEL ----
+function openPanel(wrap) {
+  document.getElementById("panelImg").src         = wrap.dataset.img;
+  document.getElementById("panelName").textContent  = wrap.dataset.name;
+  document.getElementById("panelTagline").textContent = wrap.dataset.tagline;
+  document.getElementById("panelPrice").textContent  = "$" + wrap.dataset.price;
+  document.getElementById("panelDesc").textContent   = wrap.dataset.desc;
+
+  // build ingredient chips
+  const ingContainer = document.getElementById("panelIng");
+  ingContainer.innerHTML = "";
+  wrap.dataset.ing.split(",").forEach(function(ing) {
+    const chip = document.createElement("span");
+    chip.className = "ing-chip";
+    chip.textContent = ing.trim();
+    ingContainer.appendChild(chip);
+  });
+
+  currentItem = { name: wrap.dataset.name, price: wrap.dataset.price, img: wrap.dataset.img };
+
+  //visible panel
+  panel.classList.add("active");
+  overlay.classList.add("active");
+}
+
+// ---- CLOSE PANEL ----
+function closePanel() {
+  panel.classList.remove("active");
+  overlay.classList.remove("active");
+}
+
+// ---- SHOW POPUP ----
+function showPopup() {
+  popup.style.top = "20px";
+  setTimeout(function() { popup.style.top = "-60px"; }, 2000);
+}
+
+// ---- ADD TO CART ----
+function addToCart(item) {
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+  cart.push(item);
+  localStorage.setItem("cart", JSON.stringify(cart));
+  showPopup();
+}
+
+// ---- IMAGE CLICK -> open panel ----
+document.querySelectorAll(".img-wrap").forEach(function(wrap) {
+  wrap.addEventListener("click", function() {
+    openPanel(this);
+  });
+});
+
+// ---- CARD BUTTON -> add to cart ----
+document.querySelectorAll(".order-btn").forEach(function(btn) {
+  btn.addEventListener("click", function(e) {
+    e.preventDefault();
+    addToCart({ name: this.dataset.name, price: this.dataset.price, img: this.dataset.img });
+  });
+});
+
+// ---- PANEL ADD BUTTON ----
+panelAddBtn.addEventListener("click", function() {
+  addToCart(currentItem);
+  closePanel();
+});
+
+// ---- CLOSE triggers ----
+closeBtn.addEventListener("click", closePanel);
+overlay.addEventListener("click", closePanel);
+
+</script>
+
+</body>
+</html>
